@@ -1,0 +1,117 @@
+{
+  "brand": {
+    "firstName": "Yogesh",
+    "secondName": "ai hub",
+    "logoUrl": ""
+  },
+  "navLinks": [
+    { "id": "home", "label": "Home" },
+    { "id": "about", "label": "About" },
+    { "id": "expertise", "label": "Expertise" },
+    { "id": "process", "label": "Process" },
+    { "id": "projects", "label": "Projects" },
+    { "id": "tools", "label": "Tools" },
+    { "id": "demo", "label": "Live Demo" },
+    { "id": "contact", "label": "Contact" },
+    { "id": "admin", "label": "Admin" }
+  ],
+  "hero": {
+    "badge": "Digital Growth & Automation",
+    "titleMain": "Get More Leads",
+    "titleHighlight": "On Autopilot.",
+    "description": "We build AI automation systems that capture leads faster, respond instantly, and help your business scale with less manual work."
+  },
+  "techStack": [
+    "React",
+    "Node.js",
+    "WhatsApp API",
+    "Meta Graph API",
+    "Python",
+    "TailwindCSS",
+    "AWS",
+    "MongoDB"
+  ],
+  "stats": [
+    { "label": "AI Models Deployed", "value": "45+" },
+    { "label": "Data Processed (TB)", "value": "500+" },
+    { "label": "Average Accuracy", "value": "98.5%" },
+    { "label": "Enterprise Clients", "value": "20+" }
+  ],
+  "about": {
+    "title": "Meet Yogesh Kukadiya",
+    "role": "Lead AI Engineer & Founder",
+    "description": "I specialize in turning AI ideas into practical systems that grow businesses through automation and better decisions.",
+    "photoUrl": ""
+  },
+  "services": [
+    {
+      "title": "Software Development",
+      "desc": "Custom software for your workflows and business goals.",
+      "icon": "Code"
+    },
+    {
+      "title": "Website Design & Development",
+      "desc": "Fast, responsive and high-converting websites.",
+      "icon": "Layout"
+    },
+    {
+      "title": "WhatsApp Automation",
+      "desc": "Automate support and lead capture instantly.",
+      "icon": "MessageCircle"
+    },
+    {
+      "title": "Facebook Lead Management",
+      "desc": "Capture and nurture leads for better conversions.",
+      "icon": "Users"
+    },
+    {
+      "title": "Social Media Content",
+      "desc": "Build your online presence with strategic content.",
+      "icon": "Share2"
+    }
+  ],
+  "process": [
+    { "no": "01", "title": "Discovery", "desc": "Audit your goals, data, and growth opportunities." },
+    { "no": "02", "title": "Architecture", "desc": "Design the best automation and AI structure." },
+    { "no": "03", "title": "Build", "desc": "Develop, test, and optimize for business impact." },
+    { "no": "04", "title": "Deploy", "desc": "Launch with monitoring and continuous improvement." }
+  ],
+  "projects": [
+    { "title": "Predictive Supply Chain Platform", "client": "Global Logistics Inc.", "metric": "Reduced stockouts by 34%" },
+    { "title": "Enterprise RAG Knowledge Bot", "client": "FinTech Solutions", "metric": "Saved 40 hrs/week in support" },
+    { "title": "Automated Defect Detection", "client": "AutoMfg Corp.", "metric": "99.2% detection accuracy" }
+  ],
+  "tools": [
+    {
+      "name": "Lead Capture Bot",
+      "description": "Captures leads from WhatsApp and assigns them automatically in CRM.",
+      "stack": "Node.js, Meta API, MongoDB",
+      "link": "#",
+      "status": "Live"
+    },
+    {
+      "name": "Auto Follow-up Engine",
+      "description": "Sends intelligent follow-ups and reminders to improve conversion rates.",
+      "stack": "Python, WhatsApp API, Scheduler",
+      "link": "#",
+      "status": "In Use"
+    },
+    {
+      "name": "Campaign Analytics Dashboard",
+      "description": "Tracks campaign performance, source quality, and response time metrics.",
+      "stack": "React, Express, PostgreSQL",
+      "link": "#",
+      "status": "Live"
+    }
+  ],
+  "demoResponses": [
+    "Analyzing parameters... enterprise productivity can increase by up to 40% with right AI workflows.",
+    "Processing complete. A RAG pipeline is the most reliable approach for your knowledge base.",
+    "Model suggestion: fine-tuned Llama for low-latency business Q&A use cases."
+  ],
+  "contact": {
+    "email": "Yogeshkukadiya92@gmail.com",
+    "phone": "+91 98253 44428",
+    "location": "Surat, Gujarat, India"
+  }
+}

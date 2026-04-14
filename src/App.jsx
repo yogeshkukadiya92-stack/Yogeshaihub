@@ -29,7 +29,18 @@ import {
 } from 'lucide-react';
 import founderPhoto from './assets/founder-2.jpeg';
 
-const SITE_DATA = {
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+const ICON_MAP = {
+  Code,
+  Layout,
+  MessageCircle,
+  Users,
+  Share2,
+};
+const REVERSE_ICON_MAP = new Map(Object.entries(ICON_MAP).map(([name, icon]) => [icon, name]));
+
+const DEFAULT_SITE_DATA = {
   brand: { firstName: 'Yogesh', secondName: 'ai hub', logoUrl: '' },
   navLinks: [
     { id: 'home', label: 'Home' },
@@ -40,6 +51,7 @@ const SITE_DATA = {
     { id: 'tools', label: 'Tools' },
     { id: 'demo', label: 'Live Demo' },
     { id: 'contact', label: 'Contact' },
+    { id: 'admin', label: 'Admin' },
   ],
   hero: {
     badge: 'Digital Growth & Automation',
@@ -115,7 +127,56 @@ const SITE_DATA = {
   },
 };
 
+const hydrateSiteData = (raw) => {
+  const safeRaw = raw && typeof raw === 'object' ? raw : {};
+  return {
+    ...DEFAULT_SITE_DATA,
+    ...safeRaw,
+    brand: { ...DEFAULT_SITE_DATA.brand, ...(safeRaw.brand || {}) },
+    hero: { ...DEFAULT_SITE_DATA.hero, ...(safeRaw.hero || {}) },
+    about: {
+      ...DEFAULT_SITE_DATA.about,
+      ...(safeRaw.about || {}),
+      photoUrl:
+        safeRaw?.about?.photoUrl && !String(safeRaw.about.photoUrl).startsWith('/src/')
+          ? safeRaw.about.photoUrl
+          : founderPhoto,
+    },
+    contact: { ...DEFAULT_SITE_DATA.contact, ...(safeRaw.contact || {}) },
+    navLinks: Array.isArray(safeRaw.navLinks) ? safeRaw.navLinks : DEFAULT_SITE_DATA.navLinks,
+    stats: Array.isArray(safeRaw.stats) ? safeRaw.stats : DEFAULT_SITE_DATA.stats,
+    techStack: Array.isArray(safeRaw.techStack) ? safeRaw.techStack : DEFAULT_SITE_DATA.techStack,
+    process: Array.isArray(safeRaw.process) ? safeRaw.process : DEFAULT_SITE_DATA.process,
+    projects: Array.isArray(safeRaw.projects) ? safeRaw.projects : DEFAULT_SITE_DATA.projects,
+    tools: Array.isArray(safeRaw.tools) ? safeRaw.tools : DEFAULT_SITE_DATA.tools,
+    demoResponses: Array.isArray(safeRaw.demoResponses) ? safeRaw.demoResponses : DEFAULT_SITE_DATA.demoResponses,
+    services: (Array.isArray(safeRaw.services) ? safeRaw.services : DEFAULT_SITE_DATA.services).map((service) => ({
+      ...service,
+      icon:
+        typeof service.icon === 'string'
+          ? ICON_MAP[service.icon] || Code
+          : service.icon || Code,
+    })),
+  };
+};
+
+const serializeSiteData = (data) => ({
+  ...data,
+  about: {
+    ...data.about,
+    photoUrl: data.about?.photoUrl === founderPhoto ? '' : data.about?.photoUrl || '',
+  },
+  services: (data.services || []).map((service) => ({
+    ...service,
+    icon:
+      typeof service.icon === 'string'
+        ? service.icon
+        : REVERSE_ICON_MAP.get(service.icon) || 'Code',
+  })),
+});
+
 function App() {
+  const [siteData, setSiteData] = useState(DEFAULT_SITE_DATA);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [demoInput, setDemoInput] = useState('');
@@ -128,6 +189,10 @@ function App() {
     monthlyLeads: '',
   });
   const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [adminKey, setAdminKey] = useState('');
+  const [adminDraft, setAdminDraft] = useState('');
+  const [adminStatus, setAdminStatus] = useState('');
+  const [isSavingAdmin, setIsSavingAdmin] = useState(false);
 
   const whatsappMessage = encodeURIComponent('Hi Yogesh, I want AI automation for my business.');
   const whatsappHref = `https://wa.me/919825344428?text=${whatsappMessage}`;
@@ -139,14 +204,32 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/site-data`);
+        if (!res.ok) return;
+        const apiData = await res.json();
+        setSiteData(hydrateSiteData(apiData));
+      } catch {
+        // Keep default content when backend is not running.
+      }
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    setAdminDraft(JSON.stringify(serializeSiteData(siteData), null, 2));
+  }, [siteData]);
+
   const runDemo = (e) => {
     e.preventDefault();
     if (!demoInput.trim()) return;
     setIsThinking(true);
     setDemoOutput('Processing neural pathways...');
     setTimeout(() => {
-      const idx = Math.floor(Math.random() * SITE_DATA.demoResponses.length);
-      setDemoOutput(SITE_DATA.demoResponses[idx]);
+      const idx = Math.floor(Math.random() * siteData.demoResponses.length);
+      setDemoOutput(siteData.demoResponses[idx]);
       setIsThinking(false);
     }, 1400);
   };
@@ -162,6 +245,33 @@ function App() {
     setLeadForm({ name: '', phone: '', businessType: '', monthlyLeads: '' });
   };
 
+  const saveSiteData = async () => {
+    try {
+      setIsSavingAdmin(true);
+      setAdminStatus('');
+      const parsed = JSON.parse(adminDraft);
+      const response = await fetch(`${API_BASE_URL}/api/site-data`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey,
+        },
+        body: JSON.stringify(parsed),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setAdminStatus(result?.error || 'Save failed.');
+        return;
+      }
+      setSiteData(hydrateSiteData(parsed));
+      setAdminStatus('Saved successfully.');
+    } catch (error) {
+      setAdminStatus('Invalid JSON or server error.');
+    } finally {
+      setIsSavingAdmin(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#050B14] text-slate-300">
       <div className="fixed inset-0 -z-10 pointer-events-none">
@@ -173,11 +283,11 @@ function App() {
       <nav className={`fixed top-0 w-full z-50 transition ${scrolled ? 'bg-[#050B14]/90 backdrop-blur-lg border-b border-slate-800' : ''}`}>
         <div className="max-w-7xl mx-auto h-16 px-4 flex items-center justify-between">
           <a href="#home" className="flex items-center gap-2 text-white font-bold text-xl">
-            <Brain className="text-blue-400" /> {SITE_DATA.brand.firstName} <span className="text-blue-500">{SITE_DATA.brand.secondName}</span>
+            <Brain className="text-blue-400" /> {siteData.brand.firstName} <span className="text-blue-500">{siteData.brand.secondName}</span>
           </a>
 
           <div className="hidden md:flex items-center gap-6 text-sm">
-            {SITE_DATA.navLinks.map((link) => (
+            {siteData.navLinks.map((link) => (
               <a key={link.id} href={`#${link.id}`} className="text-slate-400 hover:text-white">{link.label}</a>
             ))}
           </div>
@@ -186,7 +296,7 @@ function App() {
         </div>
         {isMenuOpen && (
           <div className="md:hidden px-4 pb-4 border-t border-slate-800 bg-[#050B14]">
-            {SITE_DATA.navLinks.map((link) => (
+            {siteData.navLinks.map((link) => (
               <a key={link.id} href={`#${link.id}`} className="block py-2 text-slate-300" onClick={() => setIsMenuOpen(false)}>{link.label}</a>
             ))}
           </div>
@@ -197,13 +307,13 @@ function App() {
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 items-center">
           <div>
             <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest mb-6 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300">
-              <Sparkles className="w-3 h-3" /> {SITE_DATA.hero.badge}
+              <Sparkles className="w-3 h-3" /> {siteData.hero.badge}
             </div>
             <h1 className="text-5xl lg:text-7xl font-extrabold text-white leading-tight">
-              {SITE_DATA.hero.titleMain} <br />
-              <span className="bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text">{SITE_DATA.hero.titleHighlight}</span>
+              {siteData.hero.titleMain} <br />
+              <span className="bg-gradient-to-r from-blue-400 to-indigo-400 text-transparent bg-clip-text">{siteData.hero.titleHighlight}</span>
             </h1>
-            <p className="mt-6 text-lg text-slate-400 max-w-xl">{SITE_DATA.hero.description}</p>
+            <p className="mt-6 text-lg text-slate-400 max-w-xl">{siteData.hero.description}</p>
             <div className="mt-8 flex gap-3 flex-wrap">
               <a href="#contact" className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white inline-flex items-center gap-2">Book Free Call <ChevronRight className="w-4 h-4" /></a>
               <a href={whatsappHref} target="_blank" rel="noreferrer" className="px-6 py-3 rounded-lg border border-slate-700 hover:bg-slate-800 text-white inline-flex items-center gap-2"><MessageCircle className="w-4 h-4" />WhatsApp Now</a>
@@ -221,7 +331,7 @@ function App() {
 
       <section className="py-8 border-y border-slate-800 bg-white/[0.02]">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap gap-3 justify-center">
-          {SITE_DATA.techStack.map((tech) => (
+          {siteData.techStack.map((tech) => (
             <span key={tech} className="px-3 py-2 text-sm rounded-full bg-slate-900 border border-slate-800 flex items-center gap-2"><Cpu className="w-4 h-4 text-blue-400" />{tech}</span>
           ))}
         </div>
@@ -229,7 +339,7 @@ function App() {
 
       <section className="py-14 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {SITE_DATA.stats.map((s) => (
+          {siteData.stats.map((s) => (
             <div key={s.label} className="p-5 rounded-2xl border border-slate-800 bg-slate-900/30 text-center">
               <div className="text-3xl font-extrabold text-white">{s.value}</div>
               <div className="text-sm text-slate-400">{s.label}</div>
@@ -240,12 +350,12 @@ function App() {
 
       <section id="about" className="py-20 px-4 border-t border-slate-800">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 items-center">
-          <img src={SITE_DATA.about.photoUrl} alt={SITE_DATA.about.title} className="w-full max-w-md mx-auto rounded-3xl border border-slate-700" />
+          <img src={siteData.about.photoUrl} alt={siteData.about.title} className="w-full max-w-md mx-auto rounded-3xl border border-slate-700" />
           <div>
             <p className="text-purple-400 text-sm uppercase tracking-wider mb-3">About The Founder</p>
-            <h2 className="text-4xl font-extrabold text-white">{SITE_DATA.about.title}</h2>
-            <p className="text-blue-400 mt-2">{SITE_DATA.about.role}</p>
-            <p className="mt-5 text-slate-400 text-lg">{SITE_DATA.about.description}</p>
+            <h2 className="text-4xl font-extrabold text-white">{siteData.about.title}</h2>
+            <p className="text-blue-400 mt-2">{siteData.about.role}</p>
+            <p className="mt-5 text-slate-400 text-lg">{siteData.about.description}</p>
           </div>
         </div>
       </section>
@@ -255,7 +365,7 @@ function App() {
           <p className="text-blue-400 text-sm uppercase tracking-wider mb-3 inline-flex items-center gap-2"><Layers className="w-4 h-4" />Our Services</p>
           <h2 className="text-4xl font-extrabold text-white mb-8">Digital Growth Solutions</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {SITE_DATA.services.map((s) => {
+            {siteData.services.map((s) => {
               const Icon = s.icon;
               return (
                 <div key={s.title} className="p-6 rounded-2xl border border-slate-800 bg-[#0A101D]">
@@ -274,7 +384,7 @@ function App() {
           <p className="text-indigo-400 text-sm uppercase tracking-wider mb-3 inline-flex items-center gap-2"><Workflow className="w-4 h-4" />Methodology</p>
           <h2 className="text-4xl font-extrabold text-white mb-8">How We Build AI Systems</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {SITE_DATA.process.map((p) => (
+            {siteData.process.map((p) => (
               <div key={p.no} className="p-5 rounded-2xl border border-slate-800 bg-[#0A101D]">
                 <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold mb-4">{p.no}</div>
                 <h3 className="text-white font-bold">{p.title}</h3>
@@ -290,7 +400,7 @@ function App() {
           <p className="text-teal-400 text-sm uppercase tracking-wider mb-3 inline-flex items-center gap-2"><Briefcase className="w-4 h-4" />Case Studies</p>
           <h2 className="text-4xl font-extrabold text-white mb-8">Proven Real-World Impact</h2>
           <div className="grid lg:grid-cols-3 gap-5">
-            {SITE_DATA.projects.map((p) => (
+            {siteData.projects.map((p) => (
               <div key={p.title} className="rounded-2xl border border-slate-800 bg-[#0A101D] overflow-hidden">
                 <div className="p-6">
                   <p className="text-slate-500 text-sm">{p.client}</p>
@@ -308,7 +418,7 @@ function App() {
           <p className="text-cyan-400 text-sm uppercase tracking-wider mb-3 inline-flex items-center gap-2"><Code className="w-4 h-4" />My Created Tools</p>
           <h2 className="text-4xl font-extrabold text-white mb-8">Tools I Built</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {SITE_DATA.tools.map((tool) => (
+            {siteData.tools.map((tool) => (
               <div key={tool.name} className="rounded-2xl border border-slate-800 bg-[#0A101D] p-6">
                 <div className="flex items-center justify-between gap-3 mb-3">
                   <h3 className="text-white text-xl font-bold">{tool.name}</h3>
@@ -348,9 +458,9 @@ function App() {
             <h2 className="text-4xl font-extrabold text-white">Initiate a Project</h2>
             <p className="text-slate-400 mt-3">Ready to integrate advanced digital solutions into your business?</p>
             <div className="mt-8 space-y-6">
-              <div className="flex items-center gap-3"><Mail className="text-blue-400" />{SITE_DATA.contact.email}</div>
-              <div className="flex items-center gap-3"><Phone className="text-purple-400" />{SITE_DATA.contact.phone}</div>
-              <div className="flex items-center gap-3"><MapPin className="text-teal-400" />{SITE_DATA.contact.location}</div>
+              <div className="flex items-center gap-3"><Mail className="text-blue-400" />{siteData.contact.email}</div>
+              <div className="flex items-center gap-3"><Phone className="text-purple-400" />{siteData.contact.phone}</div>
+              <div className="flex items-center gap-3"><MapPin className="text-teal-400" />{siteData.contact.location}</div>
             </div>
           </div>
 
@@ -370,6 +480,39 @@ function App() {
               <p className="text-emerald-400 text-sm">Thank you! We received your details and will contact you soon.</p>
             )}
           </form>
+        </div>
+      </section>
+
+      <section id="admin" className="py-20 px-4 border-t border-slate-800 bg-slate-900/20">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-extrabold text-white mb-3">Admin Data Editor</h2>
+          <p className="text-slate-400 mb-6">
+            JSON edit karo, admin key muki ne save karo. Aa backend data file update kare che.
+          </p>
+          <div className="space-y-4">
+            <input
+              type="password"
+              value={adminKey}
+              onChange={(e) => setAdminKey(e.target.value)}
+              placeholder="Admin API Key"
+              className="w-full bg-[#050B14] border border-slate-700 rounded-lg px-4 py-3 text-white"
+            />
+            <textarea
+              value={adminDraft}
+              onChange={(e) => setAdminDraft(e.target.value)}
+              rows="16"
+              className="w-full bg-[#050B14] border border-slate-700 rounded-lg px-4 py-3 text-white font-mono text-sm"
+            />
+            <button
+              type="button"
+              onClick={saveSiteData}
+              disabled={isSavingAdmin}
+              className="px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-60"
+            >
+              {isSavingAdmin ? 'Saving...' : 'Save Data to Backend'}
+            </button>
+            {adminStatus && <p className="text-sm text-cyan-300">{adminStatus}</p>}
+          </div>
         </div>
       </section>
 
@@ -397,4 +540,5 @@ function App() {
 }
 
 export default App;
+
 
