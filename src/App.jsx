@@ -27,6 +27,7 @@ import {
   Workflow,
   X,
 } from 'lucide-react';
+import founderPhoto from './assets/founder-2.jpeg';
 
 const SITE_DATA = {
   brand: { firstName: 'Yogesh', secondName: 'ai hub', logoUrl: '' },
@@ -58,7 +59,7 @@ const SITE_DATA = {
     role: 'Lead AI Engineer & Founder',
     description:
       'I specialize in turning AI ideas into practical systems that grow businesses through automation and better decisions.',
-    photoUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=1000&q=80',
+    photoUrl: founderPhoto,
   },
   services: [
     { title: 'Software Development', desc: 'Custom software for your workflows and business goals.', icon: Code },
