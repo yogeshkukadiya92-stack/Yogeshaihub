@@ -37,6 +37,7 @@ const SITE_DATA = {
     { id: 'expertise', label: 'Expertise' },
     { id: 'process', label: 'Process' },
     { id: 'projects', label: 'Projects' },
+    { id: 'tools', label: 'Tools' },
     { id: 'demo', label: 'Live Demo' },
     { id: 'contact', label: 'Contact' },
   ],
@@ -78,6 +79,29 @@ const SITE_DATA = {
     { title: 'Predictive Supply Chain Platform', client: 'Global Logistics Inc.', metric: 'Reduced stockouts by 34%' },
     { title: 'Enterprise RAG Knowledge Bot', client: 'FinTech Solutions', metric: 'Saved 40 hrs/week in support' },
     { title: 'Automated Defect Detection', client: 'AutoMfg Corp.', metric: '99.2% detection accuracy' },
+  ],
+  tools: [
+    {
+      name: 'Lead Capture Bot',
+      description: 'Captures leads from WhatsApp and assigns them automatically in CRM.',
+      stack: 'Node.js, Meta API, MongoDB',
+      link: '#',
+      status: 'Live',
+    },
+    {
+      name: 'Auto Follow-up Engine',
+      description: 'Sends intelligent follow-ups and reminders to improve conversion rates.',
+      stack: 'Python, WhatsApp API, Scheduler',
+      link: '#',
+      status: 'In Use',
+    },
+    {
+      name: 'Campaign Analytics Dashboard',
+      description: 'Tracks campaign performance, source quality, and response time metrics.',
+      stack: 'React, Express, PostgreSQL',
+      link: '#',
+      status: 'Live',
+    },
   ],
   demoResponses: [
     'Analyzing parameters... enterprise productivity can increase by up to 40% with right AI workflows.',
@@ -273,6 +297,28 @@ function App() {
                   <h3 className="text-white text-2xl font-bold mt-2">{p.title}</h3>
                 </div>
                 <div className="px-6 py-4 bg-blue-500/10 border-t border-blue-500/20 text-blue-300 flex items-center gap-2"><TrendingUp className="w-4 h-4" />{p.metric}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="tools" className="py-20 px-4 border-t border-slate-800 bg-slate-900/10">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-cyan-400 text-sm uppercase tracking-wider mb-3 inline-flex items-center gap-2"><Code className="w-4 h-4" />My Created Tools</p>
+          <h2 className="text-4xl font-extrabold text-white mb-8">Tools I Built</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {SITE_DATA.tools.map((tool) => (
+              <div key={tool.name} className="rounded-2xl border border-slate-800 bg-[#0A101D] p-6">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <h3 className="text-white text-xl font-bold">{tool.name}</h3>
+                  <span className="text-xs px-2 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300">{tool.status}</span>
+                </div>
+                <p className="text-slate-400 text-sm leading-relaxed">{tool.description}</p>
+                <p className="text-slate-500 text-xs mt-3">{tool.stack}</p>
+                <a href={tool.link} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm text-cyan-300 hover:text-cyan-200">
+                  Open Tool <ArrowRight className="w-4 h-4" />
+                </a>
               </div>
             ))}
           </div>
