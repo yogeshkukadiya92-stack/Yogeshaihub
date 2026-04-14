@@ -41,10 +41,10 @@ const SITE_DATA = {
   ],
   hero: {
     badge: 'Digital Growth & Automation',
-    titleMain: 'Accelerate Your',
-    titleHighlight: 'Digital Growth.',
+    titleMain: 'Get More Leads',
+    titleHighlight: 'On Autopilot.',
     description:
-      'We help you grow your business online, automate leads, and save time by building smart systems.',
+      'We build AI automation systems that capture leads faster, respond instantly, and help your business scale with less manual work.',
   },
   techStack: ['React', 'Node.js', 'WhatsApp API', 'Meta Graph API', 'Python', 'TailwindCSS', 'AWS', 'MongoDB'],
   stats: [
@@ -96,6 +96,17 @@ function App() {
   const [demoInput, setDemoInput] = useState('');
   const [demoOutput, setDemoOutput] = useState('System ready. Waiting for input...');
   const [isThinking, setIsThinking] = useState(false);
+  const [leadForm, setLeadForm] = useState({
+    name: '',
+    phone: '',
+    businessType: '',
+    monthlyLeads: '',
+  });
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+
+  const whatsappMessage = encodeURIComponent('Hi Yogesh, I want AI automation for my business.');
+  const whatsappHref = `https://wa.me/919825344428?text=${whatsappMessage}`;
+  const calendlyLink = 'https://calendly.com/';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -113,6 +124,17 @@ function App() {
       setDemoOutput(SITE_DATA.demoResponses[idx]);
       setIsThinking(false);
     }, 1400);
+  };
+
+  const handleLeadInput = (e) => {
+    const { name, value } = e.target;
+    setLeadForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const submitLeadForm = (e) => {
+    e.preventDefault();
+    setLeadSubmitted(true);
+    setLeadForm({ name: '', phone: '', businessType: '', monthlyLeads: '' });
   };
 
   return (
@@ -158,8 +180,9 @@ function App() {
             </h1>
             <p className="mt-6 text-lg text-slate-400 max-w-xl">{SITE_DATA.hero.description}</p>
             <div className="mt-8 flex gap-3 flex-wrap">
-              <a href="#projects" className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white inline-flex items-center gap-2">Explore Services <ChevronRight className="w-4 h-4" /></a>
-              <a href="#contact" className="px-6 py-3 rounded-lg border border-slate-700 hover:bg-slate-800 text-white">Free Consultation</a>
+              <a href="#contact" className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white inline-flex items-center gap-2">Book Free Call <ChevronRight className="w-4 h-4" /></a>
+              <a href={whatsappHref} target="_blank" rel="noreferrer" className="px-6 py-3 rounded-lg border border-slate-700 hover:bg-slate-800 text-white inline-flex items-center gap-2"><MessageCircle className="w-4 h-4" />WhatsApp Now</a>
+              <a href={calendlyLink} target="_blank" rel="noreferrer" className="px-6 py-3 rounded-lg border border-indigo-600/60 text-indigo-300 hover:bg-indigo-500/10">Book via Calendly</a>
             </div>
           </div>
 
@@ -284,11 +307,21 @@ function App() {
             </div>
           </div>
 
-          <form className="rounded-2xl border border-slate-800 bg-[#0A101D] p-8 space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <input className="w-full bg-[#050B14] border border-slate-700 rounded-lg px-4 py-3 text-white" placeholder="Name" />
-            <input className="w-full bg-[#050B14] border border-slate-700 rounded-lg px-4 py-3 text-white" placeholder="Corporate Email" />
-            <textarea rows="4" className="w-full bg-[#050B14] border border-slate-700 rounded-lg px-4 py-3 text-white" placeholder="Project Requirements" />
-            <button className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white inline-flex items-center justify-center gap-2">Initialize Communication <ArrowRight className="w-4 h-4" /></button>
+          <form className="rounded-2xl border border-slate-800 bg-[#0A101D] p-8 space-y-4" onSubmit={submitLeadForm}>
+            <input name="name" value={leadForm.name} onChange={handleLeadInput} required className="w-full bg-[#050B14] border border-slate-700 rounded-lg px-4 py-3 text-white" placeholder="Full Name" />
+            <input name="phone" value={leadForm.phone} onChange={handleLeadInput} required className="w-full bg-[#050B14] border border-slate-700 rounded-lg px-4 py-3 text-white" placeholder="Phone Number" />
+            <input name="businessType" value={leadForm.businessType} onChange={handleLeadInput} className="w-full bg-[#050B14] border border-slate-700 rounded-lg px-4 py-3 text-white" placeholder="Business Type (e.g. Real Estate)" />
+            <select name="monthlyLeads" value={leadForm.monthlyLeads} onChange={handleLeadInput} className="w-full bg-[#050B14] border border-slate-700 rounded-lg px-4 py-3 text-white">
+              <option value="">Monthly Leads (Approx.)</option>
+              <option value="0-100">0 - 100</option>
+              <option value="100-500">100 - 500</option>
+              <option value="500-1000">500 - 1000</option>
+              <option value="1000+">1000+</option>
+            </select>
+            <button className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white inline-flex items-center justify-center gap-2">Get Free Automation Plan <ArrowRight className="w-4 h-4" /></button>
+            {leadSubmitted && (
+              <p className="text-emerald-400 text-sm">Thank you! We received your details and will contact you soon.</p>
+            )}
           </form>
         </div>
       </section>
@@ -301,6 +334,17 @@ function App() {
         </div>
         <p className="text-slate-500 text-sm">© {new Date().getFullYear()} Yogesh ai hub. All Rights Reserved. Built with neural precision.</p>
       </footer>
+
+      <a
+        href={whatsappHref}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Chat on WhatsApp"
+        className="fixed bottom-5 right-5 z-50 px-4 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/30 inline-flex items-center gap-2"
+      >
+        <MessageCircle className="w-5 h-5" />
+        <span className="font-semibold text-sm">WhatsApp</span>
+      </a>
     </div>
   );
 }
