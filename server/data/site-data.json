@@ -79,7 +79,8 @@
   "projects": [
     { "title": "Predictive Supply Chain Platform", "client": "Global Logistics Inc.", "metric": "Reduced stockouts by 34%" },
     { "title": "Enterprise RAG Knowledge Bot", "client": "FinTech Solutions", "metric": "Saved 40 hrs/week in support" },
-    { "title": "Automated Defect Detection", "client": "AutoMfg Corp.", "metric": "99.2% detection accuracy" }
+    { "title": "Automated Defect Detection", "client": "AutoMfg Corp.", "metric": "99.2% detection accuracy" },
+    { "title": "go.shortlinks.in", "client": "Shortlinks Platform", "metric": "Smart URL shortening and click tracking" }
   ],
   "tools": [
     {
