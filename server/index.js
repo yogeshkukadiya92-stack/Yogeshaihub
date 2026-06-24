@@ -9,66 +9,64 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'change-me';
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'yogesh-admin-2024';
 const DATA_FILE = path.join(__dirname, 'data', 'site-data.json');
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 
 app.use(cors());
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '4mb' }));
 
 const readSiteData = async () => {
-  const raw = await fs.readFile(DATA_FILE, 'utf8');
-  return JSON.parse(raw);
+  try {
+    const raw = await fs.readFile(DATA_FILE, 'utf8');
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
 };
 
 const writeSiteData = async (data) => {
+  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
   await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
 };
 
-const validateSiteData = (data) => {
-  if (!data || typeof data !== 'object') return false;
-  if (!data.brand || !data.hero || !data.about || !data.contact) return false;
-  if (!Array.isArray(data.navLinks)) return false;
-  return true;
-};
-
 app.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'yogesh-ai-hub-backend' });
+  res.json({
+    ok: true,
+    service: 'yogesh-ai-hub-backend',
+    note: ADMIN_API_KEY === 'yogesh-admin-2024' ? 'Using default admin key — set ADMIN_API_KEY env var to change.' : 'Custom admin key active.',
+  });
 });
 
 app.get('/api/site-data', async (req, res) => {
   try {
     const data = await readSiteData();
     res.json(data);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to load site data.' });
   }
 });
 
 app.put('/api/site-data', async (req, res) => {
+  const key = req.header('x-admin-key');
+  if (!key || key !== ADMIN_API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid admin key.' });
+  }
+  const payload = req.body;
+  if (!payload || typeof payload !== 'object') {
+    return res.status(400).json({ error: 'Invalid payload.' });
+  }
   try {
-    const key = req.header('x-admin-key');
-    if (!key || key !== ADMIN_API_KEY) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid admin key.' });
-    }
-
-    const payload = req.body;
-    if (!validateSiteData(payload)) {
-      return res.status(400).json({ error: 'Invalid site data payload.' });
-    }
-
     await writeSiteData(payload);
     res.json({ ok: true, message: 'Site data updated successfully.' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to update site data.' });
+  } catch {
+    res.status(500).json({ error: 'Failed to save site data.' });
   }
 });
 
 app.use(express.static(DIST_DIR));
 app.use(async (req, res, next) => {
-  if (req.path.startsWith('/api') || req.path === '/health') {
-    return next();
-  }
+  if (req.path.startsWith('/api') || req.path === '/health') return next();
   try {
     const indexFile = path.join(DIST_DIR, 'index.html');
     await fs.access(indexFile);
@@ -79,5 +77,7 @@ app.use(async (req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
+  console.log(`\n🚀 Yogesh AI Hub backend running on http://localhost:${PORT}`);
+  console.log(`🔑 Admin key: "${ADMIN_API_KEY}"`);
+  console.log(`   To change: ADMIN_API_KEY=your-secret npm run dev:server\n`);
 });

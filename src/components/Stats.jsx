@@ -1,16 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
-
-const stats = [
-  { value: 50, suffix: '+', label: 'Projects Delivered', color: 'text-indigo-400' },
-  { value: 10000, suffix: '+', label: 'Hours Automated', color: 'text-violet-400' },
-  { value: 40, suffix: '+', label: 'Businesses Helped', color: 'text-cyan-400' },
-  { value: 25, suffix: '+', label: 'Custom AI Systems Built', color: 'text-emerald-400' },
-];
+import { useSiteData } from '../context/SiteDataContext';
 
 function Counter({ target, suffix, color, started }) {
   const [count, setCount] = useState(0);
-
   useEffect(() => {
     if (!started) return;
     const duration = 2000;
@@ -19,12 +12,8 @@ function Counter({ target, suffix, color, started }) {
     let current = 0;
     const timer = setInterval(() => {
       current += stepValue;
-      if (current >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
+      if (current >= target) { setCount(target); clearInterval(timer); }
+      else setCount(Math.floor(current));
     }, duration / steps);
     return () => clearInterval(timer);
   }, [started, target]);
@@ -39,6 +28,8 @@ function Counter({ target, suffix, color, started }) {
 export default function Stats() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+  const { siteData } = useSiteData();
+  const stats = siteData.stats;
 
   return (
     <section ref={ref} className="py-16 border-y border-white/[0.05] bg-white/[0.01]">
