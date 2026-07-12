@@ -19,6 +19,30 @@ function Field({ label, value, onChange, multiline = false, rows = 3, placeholde
   );
 }
 
+function ImageField({ label, value, onChange }) {
+  const inputRef = useRef(null);
+  const pickFile = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return alert('Please select an image file.');
+    if (file.size > 2.5 * 1024 * 1024) return alert('Image must be smaller than 2.5 MB.');
+    const reader = new FileReader();
+    reader.onload = () => onChange(reader.result);
+    reader.readAsDataURL(file);
+  };
+  return (
+    <div className="space-y-2">
+      <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide">{label}</label>
+      {value && <img src={value} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-white/10" />}
+      <div className="flex gap-2">
+        <input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder="Paste image URL or upload" className="flex-1 bg-[#030711] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-200" />
+        <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => pickFile(e.target.files?.[0])} />
+        <button type="button" onClick={() => inputRef.current?.click()} className="px-3 rounded-lg bg-indigo-500/15 text-indigo-300 text-xs font-semibold border border-indigo-500/20">Upload</button>
+        {value && <button type="button" onClick={() => onChange('')} className="px-3 rounded-lg text-rose-400 border border-rose-500/20 text-xs">Remove</button>}
+      </div>
+    </div>
+  );
+}
+
 function SectionCard({ title, children }) {
   return (
     <div className="rounded-xl border border-white/[0.06] p-5" style={{ background: '#0d1524' }}>
@@ -60,8 +84,34 @@ function GeneralTab({ data, onChange }) {
         <Field label="Location" value={c.location} onChange={(v) => set('location', v)} />
         <Field label="Calendly URL" value={c.calendly} onChange={(v) => set('calendly', v)} />
       </SectionCard>
+      <SectionCard title="Brand & Logo">
+        <Field label="Website Name" value={data.brand.name} onChange={(v) => onChange({ brand: { ...data.brand, name: v } })} />
+        <ImageField label="Logo" value={data.brand.logoUrl} onChange={(v) => onChange({ brand: { ...data.brand, logoUrl: v } })} />
+      </SectionCard>
+      <SectionCard title="Menu Links">
+        {data.navigation.map((item, i) => (
+          <div key={i} className="flex gap-2 items-end">
+            <div className="flex-1"><Field label="Label" value={item.label} onChange={(v) => onChange({ navigation: data.navigation.map((x, n) => n === i ? { ...x, label: v } : x) })} /></div>
+            <div className="flex-1"><Field label="Link" value={item.href} onChange={(v) => onChange({ navigation: data.navigation.map((x, n) => n === i ? { ...x, href: v } : x) })} /></div>
+            <RemoveBtn onClick={() => onChange({ navigation: data.navigation.filter((_, n) => n !== i) })} />
+          </div>
+        ))}
+        <AddBtn label="Add Menu Link" onClick={() => onChange({ navigation: [...data.navigation, { label: 'New Link', href: '#' }] })} />
+      </SectionCard>
     </div>
   );
+}
+
+function DesignTab({ data, onChange }) {
+  const theme = data.theme;
+  const colors = [['primary', 'Primary'], ['secondary', 'Secondary'], ['accent', 'Accent'], ['background', 'Background']];
+  return <div className="space-y-4"><SectionCard title="Website Colors">
+    <p className="text-xs text-slate-500">Choose a color and save. The website preview updates after saving.</p>
+    {colors.map(([key, label]) => <div key={key} className="flex items-center gap-3">
+      <input type="color" value={theme[key]} onChange={(e) => onChange({ theme: { ...theme, [key]: e.target.value } })} className="w-12 h-10 rounded-lg bg-transparent" />
+      <div className="flex-1"><Field label={label} value={theme[key]} onChange={(v) => onChange({ theme: { ...theme, [key]: v } })} /></div>
+    </div>)}
+  </SectionCard></div>;
 }
 
 function HeroTab({ data, onChange }) {
@@ -70,6 +120,7 @@ function HeroTab({ data, onChange }) {
   return (
     <div className="space-y-4">
       <SectionCard title="Hero Content">
+        <ImageField label="Hero Photo (optional)" value={h.imageUrl} onChange={(v) => set('imageUrl', v)} />
         <Field label="Badge Text" value={h.badge} onChange={(v) => set('badge', v)} />
         <Field label="Main Headline" value={h.headline} onChange={(v) => set('headline', v)} multiline rows={2} />
         <Field label="Description" value={h.description} onChange={(v) => set('description', v)} multiline rows={3} />
@@ -333,6 +384,7 @@ function FounderTab({ data, onChange }) {
   return (
     <div className="space-y-4">
       <SectionCard title="Founder Details">
+        <ImageField label="Founder Photo" value={f.imageUrl} onChange={(v) => set('imageUrl', v)} />
         <div className="grid grid-cols-2 gap-3">
           <Field label="Name" value={f.name} onChange={(v) => set('name', v)} />
           <Field label="Title / Role" value={f.title} onChange={(v) => set('title', v)} />
@@ -357,6 +409,7 @@ function FounderTab({ data, onChange }) {
 /* ─── MAIN ADMIN PANEL ─── */
 const TABS = [
   { id: 'general', label: 'General', icon: '⚙️' },
+  { id: 'design', label: 'Colors', icon: '🎨' },
   { id: 'hero', label: 'Hero', icon: '🏠' },
   { id: 'stats', label: 'Stats', icon: '📊' },
   { id: 'services', label: 'Services', icon: '🛠️' },
@@ -383,10 +436,9 @@ export default function AdminPanel({ onClose }) {
   const handleLogin = async () => {
     if (!adminKey.trim()) { setAuthError('Admin key zaruri che.'); return; }
     try {
-      const res = await fetch(`${API_BASE}/api/site-data`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-        body: JSON.stringify(siteData),
+      const res = await fetch(`${API_BASE}/api/admin/verify`, {
+        method: 'POST',
+        headers: { 'x-admin-key': adminKey },
       });
       if (res.status === 401) { setAuthError('Wrong admin key. Try again.'); return; }
       setAuthenticated(true);
@@ -533,6 +585,7 @@ export default function AdminPanel({ onClose }) {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-5">
               {activeTab === 'general' && <GeneralTab data={currentData} onChange={patchDraft} />}
+              {activeTab === 'design' && <DesignTab data={currentData} onChange={patchDraft} />}
               {activeTab === 'hero' && <HeroTab data={currentData} onChange={patchDraft} />}
               {activeTab === 'stats' && <StatsTab data={currentData} onChange={patchDraft} />}
               {activeTab === 'services' && <ServicesTab data={currentData} onChange={patchDraft} />}

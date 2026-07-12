@@ -150,6 +150,8 @@ function AdminTrigger({ onOpen }) {
 /* ─── Main site content (inside provider) ─── */
 function SiteContent() {
   const [adminOpen, setAdminOpen] = useState(false);
+  const { siteData } = useSiteData();
+  const theme = siteData.theme || {};
 
   // Keyboard shortcut: Ctrl+Shift+A
   useEffect(() => {
@@ -161,7 +163,17 @@ function SiteContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#030711] text-slate-300">
+    <div
+      className="min-h-screen text-slate-300"
+      data-site-theme
+      style={{
+        '--site-primary': theme.primary || '#6366f1',
+        '--site-secondary': theme.secondary || '#8b5cf6',
+        '--site-accent': theme.accent || '#22d3ee',
+        '--site-bg': theme.background || '#030711',
+        backgroundColor: theme.background || '#030711',
+      }}
+    >
       {/* Announcement banner */}
       <AuditBanner />
 

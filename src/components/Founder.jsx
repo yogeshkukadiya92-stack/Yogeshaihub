@@ -34,7 +34,7 @@ export default function Founder() {
             <div className="relative max-w-md mx-auto">
               <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-indigo-500/20 via-violet-500/10 to-cyan-500/20 blur-2xl" />
               <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-indigo-500/30 to-violet-500/20 opacity-50" />
-              <img src={founderPhoto} alt={f.name} className="relative w-full rounded-3xl border border-white/10 shadow-2xl shadow-indigo-500/20" />
+              <img src={f.imageUrl || founderPhoto} alt={f.name} className="relative w-full rounded-3xl border border-white/10 shadow-2xl shadow-indigo-500/20" />
               <motion.div initial={{ opacity: 0, scale: 0.8, y: 10 }} animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}} transition={{ delay: 0.4, duration: 0.5 }} className="absolute -bottom-4 -right-4 bg-[#0d1524] border border-indigo-500/30 rounded-2xl px-5 py-3 shadow-xl shadow-black/40">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />

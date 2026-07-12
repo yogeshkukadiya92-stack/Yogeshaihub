@@ -3,6 +3,26 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export const DEFAULT_SITE_DATA = {
+  brand: {
+    name: 'Yogesh AI Hub',
+    logoUrl: '',
+  },
+
+  theme: {
+    primary: '#6366f1',
+    secondary: '#8b5cf6',
+    accent: '#22d3ee',
+    background: '#030711',
+  },
+
+  navigation: [
+    { label: 'Services', href: '#services' },
+    { label: 'Industries', href: '#industries' },
+    { label: 'Results', href: '#case-studies' },
+    { label: 'About', href: '#founder' },
+    { label: 'FAQ', href: '#faq' },
+  ],
+
   contact: {
     email: 'yogeshkukadiya92@gmail.com',
     phone: '+91 98253 44428',
@@ -12,6 +32,7 @@ export const DEFAULT_SITE_DATA = {
   },
 
   hero: {
+    imageUrl: '',
     badge: 'AI Consultancy · Automation · Startup Studio',
     headline: 'Build AI Systems That Save Time, Reduce Costs & Scale Your Business',
     description:
@@ -116,6 +137,7 @@ export const DEFAULT_SITE_DATA = {
   ],
 
   founder: {
+    imageUrl: '',
     name: 'Yogesh Patel',
     title: 'Founder & Chief AI Strategist',
     bio: 'Helping businesses adopt AI in a practical way and building AI products that create measurable impact.',

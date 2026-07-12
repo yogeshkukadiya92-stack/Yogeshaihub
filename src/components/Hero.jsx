@@ -155,7 +155,9 @@ export default function Hero() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}>
-            <WorkflowAnimation />
+            {h.imageUrl ? (
+              <img src={h.imageUrl} alt="Hero" className="w-full max-h-[560px] object-cover rounded-3xl border border-white/10 shadow-2xl" />
+            ) : <WorkflowAnimation />}
           </motion.div>
         </div>
       </div>

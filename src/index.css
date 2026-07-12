@@ -17,6 +17,25 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Values below are controlled by the admin panel. */
+[data-site-theme] { background-color: var(--site-bg); }
+[data-site-theme] .bg-indigo-600 { background-color: var(--site-primary) !important; }
+[data-site-theme] .bg-indigo-500 { background-color: var(--site-primary) !important; }
+[data-site-theme] .text-indigo-400,
+[data-site-theme] .text-indigo-300 { color: var(--site-primary) !important; }
+[data-site-theme] .border-indigo-500\/20,
+[data-site-theme] .border-indigo-500\/30,
+[data-site-theme] .border-indigo-500\/40 { border-color: color-mix(in srgb, var(--site-primary) 35%, transparent) !important; }
+[data-site-theme] .from-indigo-600 {
+  --tw-gradient-from: var(--site-primary) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: color-mix(in srgb, var(--site-primary) 0%, transparent) var(--tw-gradient-to-position) !important;
+}
+[data-site-theme] .to-violet-600,
+[data-site-theme] .via-violet-600 { --tw-gradient-to: var(--site-secondary) var(--tw-gradient-to-position) !important; }
+[data-site-theme] .gradient-text {
+  background-image: linear-gradient(135deg, var(--site-secondary), var(--site-primary), var(--site-accent));
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #030711; }

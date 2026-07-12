@@ -47,6 +47,12 @@ app.get('/api/site-data', async (req, res) => {
   }
 });
 
+app.post('/api/admin/verify', (req, res) => {
+  const key = req.header('x-admin-key');
+  if (!key || key !== ADMIN_API_KEY) return res.status(401).json({ error: 'Unauthorized: Invalid admin key.' });
+  res.json({ ok: true });
+});
+
 app.put('/api/site-data', async (req, res) => {
   const key = req.header('x-admin-key');
   if (!key || key !== ADMIN_API_KEY) {
