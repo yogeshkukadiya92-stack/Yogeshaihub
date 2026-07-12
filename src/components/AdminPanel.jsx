@@ -279,6 +279,43 @@ function CaseStudiesTab({ data, onChange }) {
   );
 }
 
+function ToolsTab({ data, onChange }) {
+  const items = data.tools || [];
+  const update = (i, key, value) => onChange({ tools: items.map((tool, index) => index === i ? { ...tool, [key]: value } : tool) });
+  const add = () => onChange({ tools: [...items, {
+    name: 'New Tool', icon: '🛠️', tag: 'AI Tool', status: 'Live',
+    desc: 'Describe what this tool does and who it helps.', link: 'https://',
+    stats: ['Key Benefit', 'Fast', 'Easy to Use'],
+  }] });
+  const remove = (i) => onChange({ tools: items.filter((_, index) => index !== i) });
+
+  return <div className="space-y-4">
+    <p className="text-sm text-slate-400">Add your tools here. Saved tools automatically appear in the “AI Tools Showcase” section.</p>
+    {items.map((tool, i) => <SectionCard key={i} title={`Tool ${i + 1} — ${tool.name || 'Untitled'}`}>
+      <div className="flex justify-end"><RemoveBtn onClick={() => remove(i)} /></div>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Tool Name" value={tool.name || ''} onChange={(v) => update(i, 'name', v)} />
+        <Field label="Icon / Emoji" value={tool.icon || ''} onChange={(v) => update(i, 'icon', v)} placeholder="🛠️" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Category" value={tool.tag || ''} onChange={(v) => update(i, 'tag', v)} placeholder="Sales, Marketing..." />
+        <Field label="Status" value={tool.status || ''} onChange={(v) => update(i, 'status', v)} placeholder="Live" />
+      </div>
+      <Field label="Description" value={tool.desc || tool.description || ''} onChange={(v) => update(i, 'desc', v)} multiline rows={3} />
+      <Field label="Tool Link" value={tool.link || ''} onChange={(v) => update(i, 'link', v)} placeholder="https://your-tool.com" />
+      <div>
+        <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Highlights</label>
+        <div className="grid grid-cols-3 gap-2">
+          {[0, 1, 2].map((n) => <input key={n} value={tool.stats?.[n] || (n === 0 ? tool.stack || '' : '')} onChange={(e) => {
+            const stats = [...(tool.stats || [tool.stack || '', '', ''])]; stats[n] = e.target.value; update(i, 'stats', stats);
+          }} className="w-full bg-[#030711] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-slate-300" placeholder={`Highlight ${n + 1}`} />)}
+        </div>
+      </div>
+    </SectionCard>)}
+    <AddBtn onClick={add} label="Add New Tool" />
+  </div>;
+}
+
 function FAQTab({ data, onChange }) {
   const faqs = data.faqs;
   const update = (i, k, v) => {
@@ -415,6 +452,7 @@ const TABS = [
   { id: 'services', label: 'Services', icon: '🛠️' },
   { id: 'industries', label: 'Industries', icon: '🏭' },
   { id: 'cases', label: 'Case Studies', icon: '📁' },
+  { id: 'tools', label: 'AI Tools', icon: '🤖' },
   { id: 'faq', label: 'FAQ', icon: '❓' },
   { id: 'testimonials', label: 'Testimonials', icon: '⭐' },
   { id: 'founder', label: 'Founder', icon: '👤' },
@@ -591,6 +629,7 @@ export default function AdminPanel({ onClose }) {
               {activeTab === 'services' && <ServicesTab data={currentData} onChange={patchDraft} />}
               {activeTab === 'industries' && <IndustriesTab data={currentData} onChange={patchDraft} />}
               {activeTab === 'cases' && <CaseStudiesTab data={currentData} onChange={patchDraft} />}
+              {activeTab === 'tools' && <ToolsTab data={currentData} onChange={patchDraft} />}
               {activeTab === 'faq' && <FAQTab data={currentData} onChange={patchDraft} />}
               {activeTab === 'testimonials' && <TestimonialsTab data={currentData} onChange={patchDraft} />}
               {activeTab === 'founder' && <FounderTab data={currentData} onChange={patchDraft} />}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useRef } from 'react';
 import { Play, X, Zap } from 'lucide-react';
+import { useSiteData } from '../context/SiteDataContext';
 
 const tools = [
   {
@@ -86,6 +87,10 @@ const tools = [
 ];
 
 function PreviewModal({ tool, onClose }) {
+  const preview = tool.preview || {
+    title: tool.status || 'Tool Information',
+    messages: [{ from: 'ai', text: tool.desc || tool.description || 'More information coming soon.' }],
+  };
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -108,7 +113,7 @@ function PreviewModal({ tool, onClose }) {
             <span className="text-2xl">{tool.icon}</span>
             <div>
               <div className="text-white font-bold text-sm">{tool.name}</div>
-              <div className="text-slate-500 text-xs">{tool.preview.title}</div>
+              <div className="text-slate-500 text-xs">{preview.title}</div>
             </div>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
@@ -117,7 +122,7 @@ function PreviewModal({ tool, onClose }) {
         </div>
 
         <div className="p-5 space-y-3 max-h-80 overflow-y-auto">
-          {tool.preview.messages.map((msg, i) => (
+          {preview.messages.map((msg, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
@@ -150,11 +155,13 @@ function PreviewModal({ tool, onClose }) {
 
         <div className="p-4 border-t border-white/[0.05] bg-white/[0.01]">
           <a
-            href="#contact"
+            href={tool.link && tool.link !== '#' ? tool.link : '#contact'}
+            target={tool.link && tool.link !== '#' ? '_blank' : undefined}
+            rel={tool.link && tool.link !== '#' ? 'noreferrer' : undefined}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold flex items-center justify-center gap-2"
             onClick={onClose}
           >
-            <Zap className="w-4 h-4" /> Build This For My Business
+            <Zap className="w-4 h-4" /> {tool.link && tool.link !== '#' ? 'Open Tool' : 'Build This For My Business'}
           </a>
         </div>
       </motion.div>
@@ -172,6 +179,8 @@ const card = {
 };
 
 export default function AITools() {
+  const { siteData } = useSiteData();
+  const displayTools = siteData.tools?.length ? siteData.tools : tools;
   const [selected, setSelected] = useState(null);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
@@ -208,9 +217,9 @@ export default function AITools() {
           animate={inView ? 'show' : 'hidden'}
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-5"
         >
-          {tools.map((tool) => (
+          {displayTools.map((tool, index) => (
             <motion.div
-              key={tool.name}
+              key={`${tool.name}-${index}`}
               variants={card}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
               className="rounded-2xl border border-white/[0.06] p-6 flex flex-col gap-4 group cursor-pointer"
@@ -218,22 +227,22 @@ export default function AITools() {
               onClick={() => setSelected(tool)}
             >
               <div className="flex items-start justify-between">
-                <div className="text-3xl">{tool.icon}</div>
-                <span className={`tag-badge border ${tool.tagColor}`}>{tool.tag}</span>
+                <div className="text-3xl">{tool.icon || '🛠️'}</div>
+                <span className={`tag-badge border ${tool.tagColor || 'bg-indigo-500/15 text-indigo-300 border-indigo-500/20'}`}>{tool.tag || tool.status || 'Tool'}</span>
               </div>
               <div>
                 <h3 className="text-white font-bold text-lg mb-2">{tool.name}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{tool.desc}</p>
+                <p className="text-slate-400 text-sm leading-relaxed">{tool.desc || tool.description}</p>
               </div>
               <div className="flex flex-wrap gap-2">
-                {tool.stats.map((s) => (
+                {(tool.stats || (tool.stack ? [tool.stack] : [])).map((s) => (
                   <span key={s} className="text-xs px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-slate-400">
                     {s}
                   </span>
                 ))}
               </div>
               <button className="mt-auto flex items-center gap-2 text-xs text-slate-500 group-hover:text-indigo-400 transition-colors font-medium">
-                <Play className="w-3.5 h-3.5" /> Live Preview
+                <Play className="w-3.5 h-3.5" /> {tool.link && tool.link !== '#' ? 'View Tool' : 'Live Preview'}
               </button>
             </motion.div>
           ))}

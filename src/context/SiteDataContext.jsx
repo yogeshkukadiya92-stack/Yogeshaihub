@@ -23,6 +23,8 @@ export const DEFAULT_SITE_DATA = {
     { label: 'FAQ', href: '#faq' },
   ],
 
+  tools: [],
+
   contact: {
     email: 'yogeshkukadiya92@gmail.com',
     phone: '+91 98253 44428',
