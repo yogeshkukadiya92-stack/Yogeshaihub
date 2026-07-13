@@ -9,6 +9,7 @@
     "dev:server": "node server/index.js",
     "build": "vite build",
     "lint": "eslint .",
+    "test:security": "node --test server/security.test.js",
     "preview": "vite preview",
     "start:server": "node server/index.js"
   },

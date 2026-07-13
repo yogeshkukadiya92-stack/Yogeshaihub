@@ -9,7 +9,10 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'yogesh-admin-2024';
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY?.trim();
+if (!ADMIN_API_KEY) {
+  throw new Error('ADMIN_API_KEY is required. Refusing to start without an administrator key.');
+}
 const DATA_FILE = path.join(__dirname, 'data', 'site-data.json');
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 
@@ -34,7 +37,6 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     service: 'yogesh-ai-hub-backend',
-    note: ADMIN_API_KEY === 'yogesh-admin-2024' ? 'Using default admin key — set ADMIN_API_KEY env var to change.' : 'Custom admin key active.',
   });
 });
 
@@ -84,6 +86,5 @@ app.use(async (req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`\n🚀 Yogesh AI Hub backend running on http://localhost:${PORT}`);
-  console.log(`🔑 Admin key: "${ADMIN_API_KEY}"`);
-  console.log(`   To change: ADMIN_API_KEY=your-secret npm run dev:server\n`);
+  console.log('🔐 Administrator key configured.\n');
 });

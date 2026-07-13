@@ -5,7 +5,7 @@ Frontend + backend setup for editable website content.
 ## Setup
 
 1. Copy `.env.example` to `.env`
-2. Set `ADMIN_API_KEY` in `.env`
+2. Set `ADMIN_API_KEY` in `.env` to a unique, high-entropy secret. The backend refuses to start when it is missing or blank.
 3. Install packages:
    - `npm install`
 
@@ -30,3 +30,5 @@ Frontend runs on `http://localhost:5173` and backend on `http://localhost:4000`.
 ## Run Backend in Production Mode
 
 - `npm run start:server`
+
+Never put `ADMIN_API_KEY` in frontend variables or logs. Configure it only in the backend deployment environment.
